@@ -2,3 +2,9 @@
 plugins {
     alias(libs.plugins.android.application) apply false
 }
+
+tasks.register("printKotlinVersion") {
+    doLast {
+        error("Kotlin version: ${org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION}")
+    }
+}
