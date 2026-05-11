@@ -12,6 +12,7 @@ koin = "4.2.1"
 room = "2.8.4"
 kotlin = "2.3.21"
 ksp = "2.3.6"
+ratex = "0.1.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,6 +28,7 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin"
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+ratex-android = { group = "io.github.erweixin", name = "ratex-android", version.ref = "ratex" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
