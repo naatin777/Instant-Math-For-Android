@@ -11,7 +11,6 @@ class InstantMathApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Preload RaTeX fonts
         RaTeXFontLoader.loadFromAssets(this, "fonts")
 
         startKoin {

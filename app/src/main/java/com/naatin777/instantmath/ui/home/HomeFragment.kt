@@ -6,11 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.transition.AutoTransition
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.transition.MaterialSharedAxis
-import com.naatin777.instantmath.R
 import com.naatin777.instantmath.databinding.FragmentHomeBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
