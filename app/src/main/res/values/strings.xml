@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">InstantMath</string>
+    <string name="settings_title">Settings</string>
 </resources>
