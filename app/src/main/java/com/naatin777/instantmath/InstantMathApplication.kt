@@ -2,12 +2,8 @@ package com.naatin777.instantmath
 
 import android.app.Application
 import android.app.UiModeManager
-import android.graphics.Color
-import android.graphics.Color.parseColor
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import com.google.android.material.color.DynamicColors
-import com.google.android.material.color.DynamicColorsOptions
 import com.naatin777.instantmath.data.SettingsRepository
 import com.naatin777.instantmath.di.appModule
 import io.ratex.RaTeXFontLoader
@@ -19,7 +15,6 @@ import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
-import androidx.core.graphics.toColorInt
 
 class InstantMathApplication : Application() {
     private val settingsRepository: SettingsRepository by inject()

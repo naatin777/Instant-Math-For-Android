@@ -1,22 +1,12 @@
 package com.naatin777.instantmath.ui.settings
 
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.LinearGradient
-import android.graphics.Shader
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.InsetDrawable
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.RoundRectShape
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.transition.MaterialSharedAxis
 import com.naatin777.instantmath.R
 import com.naatin777.instantmath.databinding.FragmentSettingsBinding
