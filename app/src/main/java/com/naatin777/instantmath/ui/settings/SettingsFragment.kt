@@ -52,6 +52,7 @@ class SettingsFragment : Fragment() {
             viewModel.isDynamicColorEnabled.observe(viewLifecycleOwner) { enabled ->
                 if (sw.isChecked != enabled) {
                     sw.isChecked = enabled
+                    sw.jumpDrawablesToCurrentState()
                 }
             }
             sw.setOnCheckedChangeListener { _, isChecked ->
