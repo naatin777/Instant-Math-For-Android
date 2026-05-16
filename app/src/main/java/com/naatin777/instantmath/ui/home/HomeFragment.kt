@@ -60,12 +60,15 @@ class HomeFragment : Fragment() {
 
 
     private fun setupKeyboardListener() {
-        val bottomAppBar = binding.bottomAppBar
+        val symbolBar = binding.bottomAppBar
+        val bottomContainer = binding.bottomContainer
         val editText = binding.editMessage
-
-        // アニメーション状態と、OSが意図している最終的なキーボードの表示状態
         var isAnimating = false
         var isImeTargetVisible = false
+        var barHeight = 0f
+
+        // 【修正1】XMLの alpha="0" を上書きして、常に不透明（見える状態）にしておく
+        symbolBar.alpha = 1f
 
         editText.setOnFocusChangeListener { _, _ ->
             ViewCompat.requestApplyInsets(binding.root)
@@ -77,13 +80,27 @@ class HomeFragment : Fragment() {
 
                 override fun onPrepare(animation: WindowInsetsAnimationCompat) {
                     isAnimating = true
+
+                    // 高さの事前計算をより正確にするための処理
+                    if (symbolBar.height > 0) {
+                        barHeight = symbolBar.height.toFloat()
+                    } else {
+                        // GONE状態で高さが0の場合、一時的に見えない状態(INVISIBLE)にして高さを測る
+                        symbolBar.visibility = View.INVISIBLE
+                        symbolBar.measure(
+                            View.MeasureSpec.makeMeasureSpec(bottomContainer.width, View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                        )
+                        barHeight = symbolBar.measuredHeight.toFloat()
+                        symbolBar.visibility = View.GONE
+                    }
                 }
 
                 override fun onStart(
                     animation: WindowInsetsAnimationCompat,
                     bounds: WindowInsetsAnimationCompat.BoundsCompat
                 ): WindowInsetsAnimationCompat.BoundsCompat {
-                    bottomAppBar.visibility = View.VISIBLE
+                    symbolBar.visibility = View.VISIBLE
                     return super.onStart(animation, bounds)
                 }
 
@@ -93,35 +110,39 @@ class HomeFragment : Fragment() {
                 ): WindowInsetsCompat {
                     val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
                     val sysBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-
                     val diff = maxOf(imeBottom, sysBottom)
-                    bottomAppBar.translationY = -diff.toFloat()
 
                     val imeAnimation = runningAnimations
                         .find { it.typeMask and WindowInsetsCompat.Type.ime() != 0 }
                         ?: return insets
-
                     val fraction = imeAnimation.interpolatedFraction
-                    // 【修正】OSが最終的に開くつもりなら濃く、閉じるつもりなら薄くする！
-                    bottomAppBar.alpha = if (isImeTargetVisible) fraction else (1f - fraction)
+
+                    val slideProgress = if (isImeTargetVisible) fraction else (1f - fraction)
+
+                    // スライド用のアニメーション位置計算
+                    bottomContainer.translationY = -diff.toFloat() + barHeight * (1f - slideProgress)
 
                     return insets
                 }
 
                 override fun onEnd(animation: WindowInsetsAnimationCompat) {
                     isAnimating = false
-
-                    // アニメーションが完了した後、強制的に正しい最終状態に合わせる（ズレ防止）
                     val hasHardwareKeyboard = resources.configuration.keyboard != android.content.res.Configuration.KEYBOARD_NOKEYS
                     val isHardwareKeyboardActive = hasHardwareKeyboard && editText.hasFocus()
                     val shouldShow = isImeTargetVisible || isHardwareKeyboardActive
 
                     if (shouldShow) {
-                        bottomAppBar.visibility = View.VISIBLE
-                        bottomAppBar.alpha = 1f
+                        symbolBar.visibility = View.VISIBLE
                     } else {
-                        bottomAppBar.visibility = View.GONE
-                        bottomAppBar.alpha = 0f
+                        symbolBar.visibility = View.GONE
+                    }
+
+                    // 【修正2】めり込み防止：アニメーション終了後にY軸のズレを完全にリセットする
+                    val rootInsets = ViewCompat.getRootWindowInsets(binding.root)
+                    if (rootInsets != null) {
+                        val imeBottom = rootInsets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+                        val sysBottom = rootInsets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+                        bottomContainer.translationY = -maxOf(imeBottom, sysBottom).toFloat()
                     }
                 }
             }
@@ -130,27 +151,20 @@ class HomeFragment : Fragment() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             val sysBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-
-            // 【重要】OSから「これからキーボードどうなるか」の真実を受け取る
             isImeTargetVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
-
             val hasHardwareKeyboard = resources.configuration.keyboard != android.content.res.Configuration.KEYBOARD_NOKEYS
             val isHardwareKeyboardActive = hasHardwareKeyboard && editText.hasFocus()
-
             val shouldShow = isImeTargetVisible || isHardwareKeyboardActive
-
             val diff = maxOf(imeBottom, sysBottom)
-            bottomAppBar.translationY = -diff.toFloat()
 
-            // アニメーションしていない時だけ、即座に見た目を切り替える
             if (!isAnimating) {
                 if (shouldShow) {
-                    bottomAppBar.alpha = 1f
-                    bottomAppBar.visibility = View.VISIBLE
+                    symbolBar.visibility = View.VISIBLE
                 } else {
-                    bottomAppBar.alpha = 0f
-                    bottomAppBar.visibility = View.GONE
+                    symbolBar.visibility = View.GONE
                 }
+                // 通常時の位置をしっかり固定（めり込み防止）
+                bottomContainer.translationY = -diff.toFloat()
             }
             insets
         }
@@ -159,7 +173,6 @@ class HomeFragment : Fragment() {
             ViewCompat.requestApplyInsets(binding.root)
         }
     }
-
     private fun setupMathSymbols() {
         val symbols = listOf("\\", "{", "}", "^", "_", "[", "]", "`", "~", "&", "%")
         val adapter = MathSymbolAdapter(symbols) { symbol ->
