@@ -83,8 +83,33 @@ class HomeFragment : Fragment() {
         var isImeTargetVisible = false
         var barHeight = 0f
 
-        // 【修正1】XMLの alpha="0" を上書きして、常に不透明（見える状態）にしておく
         symbolBar.alpha = 1f
+
+        fun applyBottomInset(insets: WindowInsetsCompat, slideProgress: Float = 1f) {
+            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val sysBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            val bottomInset = if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                maxOf(imeBottom, sysBottom)
+            } else {
+                sysBottom
+            }
+            val slideOffset = if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                barHeight * (1f - slideProgress)
+            } else {
+                0f
+            }
+            bottomContainer.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                bottomMargin = (bottomInset - slideOffset).toInt().coerceAtLeast(0)
+            }
+        }
+
+        fun updateSymbolBarVisibility(insets: WindowInsetsCompat) {
+            val hasHardwareKeyboard =
+                resources.configuration.keyboard != android.content.res.Configuration.KEYBOARD_NOKEYS
+            val isHardwareKeyboardActive = hasHardwareKeyboard && editText.hasFocus()
+            val shouldShow = insets.isVisible(WindowInsetsCompat.Type.ime()) || isHardwareKeyboardActive
+            symbolBar.visibility = if (shouldShow) View.VISIBLE else View.GONE
+        }
 
         editText.setOnFocusChangeListener { _, _ ->
             ViewCompat.requestApplyInsets(binding.root)
@@ -96,16 +121,13 @@ class HomeFragment : Fragment() {
 
                 override fun onPrepare(animation: WindowInsetsAnimationCompat) {
                     isAnimating = true
-
-                    // 高さの事前計算をより正確にするための処理
                     if (symbolBar.height > 0) {
                         barHeight = symbolBar.height.toFloat()
                     } else {
-                        // GONE状態で高さが0の場合、一時的に見えない状態(INVISIBLE)にして高さを測る
                         symbolBar.visibility = View.INVISIBLE
                         symbolBar.measure(
                             View.MeasureSpec.makeMeasureSpec(bottomContainer.width, View.MeasureSpec.EXACTLY),
-                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                         )
                         barHeight = symbolBar.measuredHeight.toFloat()
                         symbolBar.visibility = View.GONE
@@ -114,7 +136,7 @@ class HomeFragment : Fragment() {
 
                 override fun onStart(
                     animation: WindowInsetsAnimationCompat,
-                    bounds: WindowInsetsAnimationCompat.BoundsCompat
+                    bounds: WindowInsetsAnimationCompat.BoundsCompat,
                 ): WindowInsetsAnimationCompat.BoundsCompat {
                     symbolBar.visibility = View.VISIBLE
                     return super.onStart(animation, bounds)
@@ -122,65 +144,31 @@ class HomeFragment : Fragment() {
 
                 override fun onProgress(
                     insets: WindowInsetsCompat,
-                    runningAnimations: MutableList<WindowInsetsAnimationCompat>
+                    runningAnimations: MutableList<WindowInsetsAnimationCompat>,
                 ): WindowInsetsCompat {
-                    val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-                    val sysBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-                    val diff = maxOf(imeBottom, sysBottom)
-
                     val imeAnimation = runningAnimations
                         .find { it.typeMask and WindowInsetsCompat.Type.ime() != 0 }
                         ?: return insets
                     val fraction = imeAnimation.interpolatedFraction
-
                     val slideProgress = if (isImeTargetVisible) fraction else (1f - fraction)
-
-                    // スライド用のアニメーション位置計算
-                    bottomContainer.translationY = -diff.toFloat() + barHeight * (1f - slideProgress)
-
+                    applyBottomInset(insets, slideProgress)
                     return insets
                 }
 
                 override fun onEnd(animation: WindowInsetsAnimationCompat) {
                     isAnimating = false
-                    val hasHardwareKeyboard = resources.configuration.keyboard != android.content.res.Configuration.KEYBOARD_NOKEYS
-                    val isHardwareKeyboardActive = hasHardwareKeyboard && editText.hasFocus()
-                    val shouldShow = isImeTargetVisible || isHardwareKeyboardActive
-
-                    if (shouldShow) {
-                        symbolBar.visibility = View.VISIBLE
-                    } else {
-                        symbolBar.visibility = View.GONE
-                    }
-
-                    // 【修正2】めり込み防止：アニメーション終了後にY軸のズレを完全にリセットする
-                    val rootInsets = ViewCompat.getRootWindowInsets(binding.root)
-                    if (rootInsets != null) {
-                        val imeBottom = rootInsets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-                        val sysBottom = rootInsets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-                        bottomContainer.translationY = -maxOf(imeBottom, sysBottom).toFloat()
-                    }
+                    val rootInsets = ViewCompat.getRootWindowInsets(binding.root) ?: return
+                    updateSymbolBarVisibility(rootInsets)
+                    applyBottomInset(rootInsets)
                 }
-            }
+            },
         )
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            val sysBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
             isImeTargetVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
-            val hasHardwareKeyboard = resources.configuration.keyboard != android.content.res.Configuration.KEYBOARD_NOKEYS
-            val isHardwareKeyboardActive = hasHardwareKeyboard && editText.hasFocus()
-            val shouldShow = isImeTargetVisible || isHardwareKeyboardActive
-            val diff = maxOf(imeBottom, sysBottom)
-
             if (!isAnimating) {
-                if (shouldShow) {
-                    symbolBar.visibility = View.VISIBLE
-                } else {
-                    symbolBar.visibility = View.GONE
-                }
-                // 通常時の位置をしっかり固定（めり込み防止）
-                bottomContainer.translationY = -diff.toFloat()
+                updateSymbolBarVisibility(insets)
+                applyBottomInset(insets)
             }
             insets
         }
