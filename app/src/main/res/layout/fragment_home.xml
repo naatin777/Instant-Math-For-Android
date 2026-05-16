@@ -68,11 +68,21 @@
         android:clipChildren="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <View
+            android:id="@+id/system_nav_bar_background"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="?attr/colorSurfaceContainer"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bottomContainer" />
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@android:color/transparent"
+            android:background="?attr/colorSurface"
             app:layout_constraintBottom_toTopOf="@id/bottomContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
