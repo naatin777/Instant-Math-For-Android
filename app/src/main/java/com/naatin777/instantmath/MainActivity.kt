@@ -3,6 +3,7 @@ package com.naatin777.instantmath
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.color.DynamicColors
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             DynamicColors.applyToActivityIfAvailable(this@MainActivity)
         } else {
             val options = DynamicColorsOptions.Builder()
-                .setContentBasedSource("#1A73E8".toColorInt())
+                .setContentBasedSource(ContextCompat.getColor(this, R.color.main_color))
                 .build()
             DynamicColors.applyToActivityIfAvailable(this@MainActivity, options)
         }
