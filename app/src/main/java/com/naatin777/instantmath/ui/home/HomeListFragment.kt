@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.naatin777.instantmath.databinding.FragmentHomeListBinding
 
@@ -28,6 +29,11 @@ class HomeListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.adapter = FormulaEntryAdapter(tab.dummyEntries())
+    }
+
+    fun setImePadding(imeBottom: Int) {
+        val basePadding = (16 * resources.displayMetrics.density).toInt()
+        _binding?.recyclerView?.updatePadding(bottom = basePadding + imeBottom)
     }
 
     override fun onDestroyView() {

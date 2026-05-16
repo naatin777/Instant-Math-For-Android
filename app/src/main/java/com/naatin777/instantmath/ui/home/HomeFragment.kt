@@ -1,8 +1,7 @@
 package com.naatin777.instantmath.ui.home
 
+import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
-import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +13,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.transition.Slide
-import androidx.transition.TransitionManager
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.MaterialSharedAxis
 import com.naatin777.instantmath.R
@@ -74,33 +71,72 @@ class HomeFragment : Fragment() {
         }.attach()
     }
 
-
     private fun setupKeyboardListener() {
         val symbolBar = binding.bottomAppBar
         val bottomContainer = binding.bottomContainer
         val editText = binding.editMessage
         var isAnimating = false
         var isImeTargetVisible = false
+        var isClosing = false
+        var activeKeyboardIsResize = false
         var barHeight = 0f
 
         symbolBar.alpha = 1f
 
-        fun applyBottomInset(insets: WindowInsetsCompat, slideProgress: Float = 1f) {
+        fun layoutConsumedByIme(insets: WindowInsetsCompat): Int {
+            val visibleFrame = Rect()
+            binding.root.getWindowVisibleDisplayFrame(visibleFrame)
+            val rootLocation = IntArray(2)
+            binding.root.getLocationOnScreen(rootLocation)
+            val rootBottomOnScreen = rootLocation[1] + binding.root.height
+            return (rootBottomOnScreen - visibleFrame.bottom).coerceAtLeast(0)
+        }
+
+        fun isResizeImeKeyboard(insets: WindowInsetsCompat): Boolean {
+            if (!insets.isVisible(WindowInsetsCompat.Type.ime())) return false
+
+            val consumed = layoutConsumedByIme(insets)
+            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val threshold = (48 * resources.displayMetrics.density).toInt()
+
+            return when {
+                imeBottom == 0 -> consumed >= threshold
+                else -> consumed > imeBottom / 3
+            }
+        }
+
+        fun updateListImePadding(imeBottom: Int) {
+            childFragmentManager.fragments
+                .filterIsInstance<HomeListFragment>()
+                .forEach { it.setImePadding(imeBottom) }
+        }
+
+        fun applyKeyboardState(insets: WindowInsetsCompat, slideProgress: Float = 1f) {
             val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             val sysBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            val bottomInset = if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
-                maxOf(imeBottom, sysBottom)
-            } else {
-                sysBottom
-            }
-            val slideOffset = if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
+            val slideOffset = if (imeBottom > 0 || isAnimating) {
                 barHeight * (1f - slideProgress)
             } else {
                 0f
             }
-            bottomContainer.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                bottomMargin = (bottomInset - slideOffset).toInt().coerceAtLeast(0)
+            // リサイズ型キーボードのみ表示中にナビバー margin を外す（フローティングでは常に維持）
+            val keyboardShownFraction = when {
+                isAnimating -> slideProgress
+                imeBottom > 0 -> 1f
+                else -> 0f
             }
+            val resizeKeyboard = if (isAnimating || insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                activeKeyboardIsResize
+            } else {
+                false
+            }
+            val navBarMarginScale = if (resizeKeyboard) 1f - keyboardShownFraction else 1f
+
+            bottomContainer.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                bottomMargin = (sysBottom * navBarMarginScale).toInt()
+            }
+            bottomContainer.translationY = -imeBottom.toFloat() + slideOffset
+            updateListImePadding(imeBottom)
         }
 
         fun updateSymbolBarVisibility(insets: WindowInsetsCompat) {
@@ -121,6 +157,11 @@ class HomeFragment : Fragment() {
 
                 override fun onPrepare(animation: WindowInsetsAnimationCompat) {
                     isAnimating = true
+                    val currentInsets = ViewCompat.getRootWindowInsets(binding.root)
+                    isClosing = currentInsets?.isVisible(WindowInsetsCompat.Type.ime()) == true
+                    if (!isClosing) {
+                        activeKeyboardIsResize = false
+                    }
                     if (symbolBar.height > 0) {
                         barHeight = symbolBar.height.toFloat()
                     } else {
@@ -150,16 +191,25 @@ class HomeFragment : Fragment() {
                         .find { it.typeMask and WindowInsetsCompat.Type.ime() != 0 }
                         ?: return insets
                     val fraction = imeAnimation.interpolatedFraction
-                    val slideProgress = if (isImeTargetVisible) fraction else (1f - fraction)
-                    applyBottomInset(insets, slideProgress)
+                    val slideProgress = if (!isClosing) fraction else (1f - fraction)
+                    if (!isClosing) {
+                        activeKeyboardIsResize = isResizeImeKeyboard(insets)
+                    }
+                    applyKeyboardState(insets, slideProgress)
                     return insets
                 }
 
                 override fun onEnd(animation: WindowInsetsAnimationCompat) {
                     isAnimating = false
                     val rootInsets = ViewCompat.getRootWindowInsets(binding.root) ?: return
+                    if (isClosing) {
+                        activeKeyboardIsResize = false
+                    } else {
+                        activeKeyboardIsResize = isResizeImeKeyboard(rootInsets)
+                    }
+                    isClosing = false
                     updateSymbolBarVisibility(rootInsets)
-                    applyBottomInset(rootInsets)
+                    applyKeyboardState(rootInsets)
                 }
             },
         )
@@ -167,8 +217,13 @@ class HomeFragment : Fragment() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             isImeTargetVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
             if (!isAnimating) {
+                activeKeyboardIsResize = if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                    isResizeImeKeyboard(insets)
+                } else {
+                    false
+                }
                 updateSymbolBarVisibility(insets)
-                applyBottomInset(insets)
+                applyKeyboardState(insets)
             }
             insets
         }
@@ -177,6 +232,7 @@ class HomeFragment : Fragment() {
             ViewCompat.requestApplyInsets(binding.root)
         }
     }
+
     private fun setupMathSymbols() {
         val symbols = listOf("\\", "{", "}", "^", "_", "[", "]", "`", "~", "&", "%")
         val adapter = MathSymbolAdapter(symbols) { symbol ->
