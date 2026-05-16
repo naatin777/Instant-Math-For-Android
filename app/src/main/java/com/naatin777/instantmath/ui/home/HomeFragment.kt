@@ -7,14 +7,18 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.MaterialSharedAxis
+import com.naatin777.instantmath.R
 import com.naatin777.instantmath.databinding.FragmentHomeBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -54,8 +58,20 @@ class HomeFragment : Fragment() {
             displayMode = true
         }
 
+        setupTabs()
         setupMathSymbols()
         setupKeyboardListener()
+    }
+
+    private fun setupTabs() {
+        binding.viewPager.adapter = HomePagerAdapter(this)
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> getString(R.string.tab_favorite)
+                1 -> getString(R.string.tab_history)
+                else -> ""
+            }
+        }.attach()
     }
 
 

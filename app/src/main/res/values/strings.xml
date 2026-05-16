@@ -7,4 +7,7 @@
     <string name="theme_system">System</string>
     <string name="dynamic_color">Dynamic Color</string>
     <string name="enter_the_formula">Enter the formula</string>
+    <string name="tab_favorite">Favorite</string>
+    <string name="tab_history">History</string>
+    <string name="favorite">Favorite</string>
 </resources>
