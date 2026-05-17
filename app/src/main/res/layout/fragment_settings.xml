@@ -2,7 +2,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurfaceContainer">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -55,6 +56,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/colorSurfaceContainer"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -83,7 +85,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_theme"
-                            android:textAppearance="?attr/textAppearanceTitleMedium" />
+                            style="@style/Widget.Material3.TextView.ListItem.LabelText" />
 
                         <com.google.android.material.button.MaterialButtonGroup
                             android:id="@+id/toggle_theme"
@@ -129,6 +131,62 @@
                 android:layout_height="2dp" />
 
             <com.google.android.material.listitem.ListItemLayout
+                android:id="@+id/copy_format_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.listitem.ListItemCardView
+                    style="?attr/listItemCardViewSegmentedStyle"
+                    app:cardBackgroundColor="?attr/colorSurfaceBright"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_copy_format"
+                            style="@style/Widget.Material3.TextView.ListItem.LabelText" />
+
+                        <com.google.android.material.button.MaterialButtonGroup
+                            android:id="@+id/toggle_copy_format"
+                            style="@style/Widget.Material3Expressive.MaterialButtonGroup.Connected"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_copy_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checkable="true"
+                                android:text="@string/copy_as_text"
+                                app:icon="@drawable/outline_text_fields_24" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_copy_image"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checkable="true"
+                                android:text="@string/copy_as_image"
+                                app:icon="@drawable/outline_image_24" />
+
+                        </com.google.android.material.button.MaterialButtonGroup>
+
+                    </LinearLayout>
+
+                </com.google.android.material.listitem.ListItemCardView>
+
+            </com.google.android.material.listitem.ListItemLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="2dp" />
+
+            <com.google.android.material.listitem.ListItemLayout
                 android:id="@+id/bbb"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -148,7 +206,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="@string/dynamic_color"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            style="@style/Widget.Material3.TextView.ListItem.LabelText"
                             android:layout_weight="1"/>
 
                         <com.google.android.material.materialswitch.MaterialSwitch

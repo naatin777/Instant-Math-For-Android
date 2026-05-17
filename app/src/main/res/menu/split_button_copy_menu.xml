@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/copy_as_text"
+        android:icon="@drawable/outline_text_fields_24"
+        android:title="@string/copy_as_text" />
+    <item
+        android:id="@+id/copy_as_image"
+        android:icon="@drawable/outline_image_24"
+        android:title="@string/copy_as_image" />
+</menu>

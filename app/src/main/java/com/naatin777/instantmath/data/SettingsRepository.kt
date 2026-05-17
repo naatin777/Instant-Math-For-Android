@@ -20,6 +20,7 @@ class SettingsRepository(private val context: Context) {
     private object PreferencesKeys {
         val THEME_MODE = intPreferencesKey("theme_mode")
         val IS_DYNAMIC_COLOR_ENABLED = booleanPreferencesKey("is_dynamic_color_enabled")
+        val COPY_FORMAT = intPreferencesKey("copy_format")
     }
 
     val themeModeFlow: Flow<Int> = context.dataStore.data
@@ -32,6 +33,20 @@ class SettingsRepository(private val context: Context) {
         }
         .map { preferences ->
             preferences[PreferencesKeys.THEME_MODE] ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+
+    val copyFormatFlow: Flow<CopyFormat> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            CopyFormat.fromValue(
+                preferences[PreferencesKeys.COPY_FORMAT] ?: CopyFormat.TEXT.value,
+            )
         }
 
     val isDynamicColorEnabledFlow: Flow<Boolean> = context.dataStore.data
@@ -55,6 +70,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun setDynamicColorEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_DYNAMIC_COLOR_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setCopyFormat(format: CopyFormat) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.COPY_FORMAT] = format.value
         }
     }
 }
