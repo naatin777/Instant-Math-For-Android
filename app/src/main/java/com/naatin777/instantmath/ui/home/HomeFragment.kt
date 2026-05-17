@@ -283,7 +283,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupMathSymbols() {
-        val symbols = listOf("\\", "{", "}", "^", "_", "[", "]", "`", "~", "&", "%")
+        val symbols = listOf("\\", "{", "}", "=","^", "_", "|", "[", "]", "`", "~", "&", "%")
         val adapter = MathSymbolAdapter(symbols) { symbol ->
             val editText = binding.editMessage
             commitImeComposingText(editText)
