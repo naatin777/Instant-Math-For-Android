@@ -109,7 +109,7 @@
                 android:layout_height="wrap_content"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:fillViewport="false"
+                android:fillViewport="true"
                 android:overScrollMode="ifContentScrolls"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
@@ -126,7 +126,7 @@
                         android:id="@+id/mathView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center" />
+                        android:layout_gravity="center_horizontal" />
 
                 </FrameLayout>
             </HorizontalScrollView>
@@ -159,10 +159,12 @@
                     android:layout_height="wrap_content">
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_copy_leading"
                         style="?attr/materialSplitButtonLeadingFilledStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:icon="@drawable/outline_content_copy_24" />
+                        android:contentDescription="@string/copy_formula"
+                        app:icon="@drawable/outline_text_fields_24" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/expand_more_or_less_filled"

@@ -14,4 +14,7 @@
     <string name="copy_as_image">Image</string>
     <string name="copy_options">Copy options</string>
     <string name="settings_copy_format">Copy format</string>
+    <string name="copy_formula">Copy formula</string>
+    <string name="copy_formula_as_text">Copy formula as text</string>
+    <string name="copy_formula_as_image">Copy formula as image</string>
 </resources>

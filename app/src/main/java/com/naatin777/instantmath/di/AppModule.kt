@@ -22,6 +22,6 @@ val appModule = module {
 
     single { SettingsRepository(androidContext()) }
 
-    viewModel { HomeViewModel() }
+    viewModel { HomeViewModel(get()) }
     viewModel { SettingsViewModel(get()) }
 }

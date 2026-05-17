@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -26,6 +27,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.MaterialSharedAxis
 import com.naatin777.instantmath.R
+import com.naatin777.instantmath.data.CopyFormat
 import com.naatin777.instantmath.databinding.FragmentHomeBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -68,10 +70,65 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupSplitButton() {
+        val leadingButton = binding.btnCopyLeading
         val trailingButton = binding.expandMoreOrLessFilled
-        trailingButton.addOnCheckedChangeListener { button, isChecked ->
-            if (isChecked) {
-                showCopyOptionsMenu(button)
+
+        // フォーカスを奪うと IME が閉じるため、タップ可能だがフォーカス不可にする
+        listOf(leadingButton, trailingButton).forEach { button ->
+            button.isFocusable = false
+            button.isFocusableInTouchMode = false
+        }
+
+        viewModel.copyFormat.observe(viewLifecycleOwner, ::applyCopyFormatUi)
+
+        leadingButton.setOnClickListener { view ->
+            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            val format = viewModel.copyFormat.value ?: CopyFormat.TEXT
+            performCopy(format)
+            restoreEditTextIme()
+        }
+
+        trailingButton.setOnClickListener { button ->
+            showCopyOptionsMenu(button)
+        }
+    }
+
+    private fun applyCopyFormatUi(format: CopyFormat) {
+        val button = binding.btnCopyLeading
+        val iconRes = when (format) {
+            CopyFormat.TEXT -> R.drawable.outline_text_fields_24
+            CopyFormat.IMAGE -> R.drawable.outline_image_24
+        }
+        val description = when (format) {
+            CopyFormat.TEXT -> getString(R.string.copy_formula_as_text)
+            CopyFormat.IMAGE -> getString(R.string.copy_formula_as_image)
+        }
+        if (button.contentDescription == description) return
+        button.setIconResource(iconRes)
+        button.contentDescription = description
+    }
+
+    private fun restoreEditTextIme() {
+        val editText = binding.editMessage
+        editText.post {
+            editText.requestFocus()
+            ViewCompat.getWindowInsetsController(editText)?.show(WindowInsetsCompat.Type.ime())
+        }
+    }
+
+    private fun performCopy(format: CopyFormat) {
+        val latex = binding.editMessage.text?.toString().orEmpty()
+        if (latex.isBlank()) return
+
+        when (format) {
+            CopyFormat.TEXT -> {
+                FormulaClipboard.copyText(requireContext(), latex)
+            }
+            CopyFormat.IMAGE -> {
+                binding.mathView.latex = latex
+                binding.mathView.doOnLayout {
+                    FormulaClipboard.copyImage(requireContext(), binding.mathView)
+                }
             }
         }
     }
@@ -83,14 +140,20 @@ class HomeFragment : Fragment() {
         popup.setOnMenuItemClickListener { item ->
             anchor.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             when (item.itemId) {
-                R.id.copy_as_text,
-                R.id.copy_as_image,
-                -> true
+                R.id.copy_as_text -> {
+                    viewModel.setCopyFormat(CopyFormat.TEXT)
+                    true
+                }
+                R.id.copy_as_image -> {
+                    viewModel.setCopyFormat(CopyFormat.IMAGE)
+                    true
+                }
                 else -> false
             }
         }
         popup.setOnDismissListener {
             binding.expandMoreOrLessFilled.isChecked = false
+            restoreEditTextIme()
         }
         popup.show()
     }
