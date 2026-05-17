@@ -11,9 +11,10 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
-import androidx.core.view.doOnLayout
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.doAfterTextChanged
 import androidx.appcompat.widget.PopupMenu
@@ -23,7 +24,6 @@ import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.MaterialSharedAxis
 import com.naatin777.instantmath.R
@@ -73,7 +73,6 @@ class HomeFragment : Fragment() {
         val leadingButton = binding.btnCopyLeading
         val trailingButton = binding.expandMoreOrLessFilled
 
-        // フォーカスを奪うと IME が閉じるため、タップ可能だがフォーカス不可にする
         listOf(leadingButton, trailingButton).forEach { button ->
             button.isFocusable = false
             button.isFocusableInTouchMode = false
@@ -112,7 +111,8 @@ class HomeFragment : Fragment() {
         val editText = binding.editMessage
         editText.post {
             editText.requestFocus()
-            ViewCompat.getWindowInsetsController(editText)?.show(WindowInsetsCompat.Type.ime())
+            WindowCompat.getInsetsController(requireActivity().window, editText)
+                .show(WindowInsetsCompat.Type.ime())
         }
     }
 
@@ -174,14 +174,13 @@ class HomeFragment : Fragment() {
         val bottomContainer = binding.bottomContainer
         val editText = binding.editMessage
         var isAnimating = false
-        var isImeTargetVisible = false
         var isClosing = false
         var activeKeyboardIsResize = false
         var barHeight = 0f
 
         symbolBar.alpha = 1f
 
-        fun layoutConsumedByIme(insets: WindowInsetsCompat): Int {
+        fun layoutConsumedByIme(): Int {
             val visibleFrame = Rect()
             binding.root.getWindowVisibleDisplayFrame(visibleFrame)
             val rootLocation = IntArray(2)
@@ -193,7 +192,7 @@ class HomeFragment : Fragment() {
         fun isResizeImeKeyboard(insets: WindowInsetsCompat): Boolean {
             if (!insets.isVisible(WindowInsetsCompat.Type.ime())) return false
 
-            val consumed = layoutConsumedByIme(insets)
+            val consumed = layoutConsumedByIme()
             val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             val threshold = (48 * resources.displayMetrics.density).toInt()
 
@@ -217,7 +216,6 @@ class HomeFragment : Fragment() {
             } else {
                 0f
             }
-            // リサイズ型キーボードのみ表示中にナビバー margin を外す（フローティングでは常に維持）
             val keyboardShownFraction = when {
                 isAnimating -> slideProgress
                 imeBottom > 0 -> 1f
@@ -300,12 +298,11 @@ class HomeFragment : Fragment() {
                 override fun onEnd(animation: WindowInsetsAnimationCompat) {
                     isAnimating = false
                     val rootInsets = ViewCompat.getRootWindowInsets(binding.root) ?: return
-                    if (isClosing) {
-                        activeKeyboardIsResize = false
+                    activeKeyboardIsResize = if (isClosing) {
+                        false
                     } else {
-                        activeKeyboardIsResize = isResizeImeKeyboard(rootInsets)
+                        isResizeImeKeyboard(rootInsets)
                     }
-                    isClosing = false
                     updateSymbolBarVisibility(rootInsets)
                     applyKeyboardState(rootInsets)
                 }
@@ -313,7 +310,6 @@ class HomeFragment : Fragment() {
         )
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            isImeTargetVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
             if (!isAnimating) {
                 activeKeyboardIsResize = if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
                     isResizeImeKeyboard(insets)

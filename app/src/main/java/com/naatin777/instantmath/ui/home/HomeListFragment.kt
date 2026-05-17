@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.naatin777.instantmath.databinding.FragmentHomeListBinding
@@ -46,7 +45,9 @@ class HomeListFragment : Fragment() {
 
         fun newInstance(tab: HomeListTab): HomeListFragment =
             HomeListFragment().apply {
-                arguments = bundleOf(ARG_TAB to tab.ordinal)
+                arguments = Bundle().apply {
+                    putInt(ARG_TAB, tab.ordinal)
+                }
             }
     }
 }

@@ -11,6 +11,8 @@ import androidx.core.content.FileProvider
 import com.naatin777.instantmath.R
 import java.io.File
 import java.io.FileOutputStream
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.withTranslation
 
 object FormulaClipboard {
 
@@ -25,17 +27,12 @@ object FormulaClipboard {
         if (mathView.width <= 0 || mathView.height <= 0) return false
 
         val padding = context.resources.getDimensionPixelSize(R.dimen.formula_clipboard_padding)
-        val bitmap = Bitmap.createBitmap(
-            mathView.width + padding * 2,
-            mathView.height + padding * 2,
-            Bitmap.Config.ARGB_8888,
-        )
+        val bitmap = createBitmap(mathView.width + padding * 2, mathView.height + padding * 2)
         val canvas = Canvas(bitmap)
         canvas.drawColor(Color.WHITE)
-        canvas.save()
-        canvas.translate(padding.toFloat(), padding.toFloat())
-        mathView.draw(canvas)
-        canvas.restore()
+        canvas.withTranslation(padding.toFloat(), padding.toFloat()) {
+            mathView.draw(this)
+        }
 
         val cacheDir = File(context.cacheDir, "clipboard").apply { mkdirs() }
         val file = File(cacheDir, "formula.png")
