@@ -94,16 +94,10 @@
             android:layout_height="wrap_content"
             android:clipChildren="true"
             android:orientation="vertical"
+            android:background="?attr/colorSurfaceContainer"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/colorSurfaceContainer"
-                android:orientation="vertical"
-                android:gravity="center_vertical">
 
                 <io.ratex.RaTeXView
                     android:id="@+id/mathView"
@@ -179,8 +173,6 @@
                 </FrameLayout>
 
             </LinearLayout>
-
-        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

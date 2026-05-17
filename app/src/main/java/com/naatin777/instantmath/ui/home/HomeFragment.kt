@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import androidx.core.widget.doAfterTextChanged
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -54,12 +55,7 @@ class HomeFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        binding.mathView.apply {
-            latex = """f(x) = \int_{-\infty}^{\infty} \hat{f}(\xi) e^{2 \pi i \xi x} d\xi"""
-            fontSize = 24f
-            displayMode = true
-        }
-
+        setupMathPreviewSync()
         setupTabs()
         setupMathSymbols()
         setupSplitButton()
@@ -264,6 +260,16 @@ class HomeFragment : Fragment() {
 
         binding.root.post {
             ViewCompat.requestApplyInsets(binding.root)
+        }
+    }
+
+    private fun setupMathPreviewSync() {
+        binding.mathView.apply {
+            fontSize = 24f
+            displayMode = true
+        }
+        binding.editMessage.doAfterTextChanged { text ->
+            binding.mathView.latex = text?.toString().orEmpty()
         }
     }
 
