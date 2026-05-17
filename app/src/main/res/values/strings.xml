@@ -13,4 +13,5 @@
     <string name="copy_as_text">Text</string>
     <string name="copy_as_image">Image</string>
     <string name="copy_options">Copy options</string>
+    <string name="settings_copy_format">Copy format</string>
 </resources>

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.MaterialSharedAxis
 import com.naatin777.instantmath.R
+import com.naatin777.instantmath.data.CopyFormat
 import com.naatin777.instantmath.databinding.FragmentSettingsBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -39,12 +40,13 @@ class SettingsFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        binding.aaa.updateAppearance(0, 2)
-        binding.bbb.updateAppearance(1, 2)
+        binding.aaa.updateAppearance(0, 3)
+        binding.copyFormatItem.updateAppearance(1, 3)
+        binding.bbb.updateAppearance(2, 3)
 
         setupThemeSelection()
+        setupCopyFormatSelection()
         setupDynamicColorToggle()
-
     }
 
     private fun setupDynamicColorToggle() {
@@ -58,6 +60,36 @@ class SettingsFragment : Fragment() {
             sw.setOnCheckedChangeListener { _, isChecked ->
                 if (viewModel.isDynamicColorEnabled.value != isChecked) {
                     viewModel.setDynamicColorEnabled(isChecked)
+                }
+            }
+        }
+    }
+
+    private fun setupCopyFormatSelection() {
+        val buttons = listOf(binding.btnCopyText, binding.btnCopyImage)
+
+        viewModel.copyFormat.observe(viewLifecycleOwner) { format ->
+            val selectedId = when (format) {
+                CopyFormat.TEXT -> R.id.btn_copy_text
+                CopyFormat.IMAGE -> R.id.btn_copy_image
+            }
+            buttons.forEach { btn ->
+                if (btn.isChecked != (btn.id == selectedId)) {
+                    btn.isChecked = btn.id == selectedId
+                }
+            }
+        }
+
+        buttons.forEach { btn ->
+            btn.setOnClickListener {
+                val format = when (btn.id) {
+                    R.id.btn_copy_image -> CopyFormat.IMAGE
+                    else -> CopyFormat.TEXT
+                }
+                if (viewModel.copyFormat.value != format) {
+                    viewModel.setCopyFormat(format)
+                } else {
+                    btn.isChecked = true
                 }
             }
         }
