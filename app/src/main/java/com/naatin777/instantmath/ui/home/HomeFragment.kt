@@ -11,8 +11,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.MaterialSharedAxis
 import com.naatin777.instantmath.R
@@ -57,7 +59,36 @@ class HomeFragment : Fragment() {
 
         setupTabs()
         setupMathSymbols()
+        setupSplitButton()
         setupKeyboardListener()
+    }
+
+    private fun setupSplitButton() {
+        val trailingButton = binding.expandMoreOrLessFilled
+        trailingButton.addOnCheckedChangeListener { button, isChecked ->
+            if (isChecked) {
+                showCopyOptionsMenu(button)
+            }
+        }
+    }
+
+    private fun showCopyOptionsMenu(anchor: View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menuInflater.inflate(R.menu.split_button_copy_menu, popup.menu)
+        popup.setForceShowIcon(true)
+        popup.setOnMenuItemClickListener { item ->
+            anchor.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            when (item.itemId) {
+                R.id.copy_as_text,
+                R.id.copy_as_image,
+                -> true
+                else -> false
+            }
+        }
+        popup.setOnDismissListener {
+            binding.expandMoreOrLessFilled.isChecked = false
+        }
+        popup.show()
     }
 
     private fun setupTabs() {

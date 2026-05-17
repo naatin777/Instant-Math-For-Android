@@ -10,4 +10,7 @@
     <string name="tab_favorite">Favorite</string>
     <string name="tab_history">History</string>
     <string name="favorite">Favorite</string>
+    <string name="copy_as_text">Text</string>
+    <string name="copy_as_image">Image</string>
+    <string name="copy_options">Copy options</string>
 </resources>

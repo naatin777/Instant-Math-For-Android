@@ -145,11 +145,12 @@
                             android:layout_height="wrap_content"
                             app:icon="@drawable/outline_content_copy_24"
                             />
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             style="?attr/materialSplitButtonIconFilledStyle"
                             android:id="@+id/expand_more_or_less_filled"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:contentDescription="@string/copy_options"
                             app:icon="@drawable/m3_split_button_chevron_avd"
                             />
 
