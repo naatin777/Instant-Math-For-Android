@@ -265,7 +265,7 @@ class HomeFragment : Fragment() {
 
     private fun setupMathPreviewSync() {
         binding.mathView.apply {
-            fontSize = 24f
+            fontSize = MATH_PREVIEW_FONT_SIZE_SP
             displayMode = true
         }
         binding.editMessage.doAfterTextChanged { text ->
@@ -298,5 +298,9 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val MATH_PREVIEW_FONT_SIZE_SP = 24f
     }
 }

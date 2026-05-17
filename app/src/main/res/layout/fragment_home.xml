@@ -17,8 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
-            app:contentInsetStart="16dp"
-            app:contentInsetEnd="16dp" >
+            app:contentInsetEnd="16dp"
+            app:contentInsetStart="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -82,87 +82,86 @@
             android:id="@+id/bottomContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="?attr/colorSurfaceContainer"
             android:clipChildren="true"
             android:orientation="vertical"
-            android:background="?attr/colorSurfaceContainer"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-                <io.ratex.RaTeXView
-                    android:id="@+id/mathView"
+            <io.ratex.RaTeXView
+                android:id="@+id/mathView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:baselineAligned="false"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/editMessage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/edit_text_background"
+                    android:hint="@string/enter_the_formula"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:padding="16dp" />
+
+                <Space
+                    android:layout_width="4dp"
+                    android:layout_height="wrap_content" />
+
+                <com.google.android.material.button.MaterialSplitButton
+                    android:id="@+id/splitButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_margin="8dp" />
+                    android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false"
-                    android:gravity="center_vertical">
-
-                    <EditText
-                        android:id="@+id/editMessage"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/edit_text_background"
-                        android:hint="@string/enter_the_formula"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:padding="16dp" />
-
-                    <Space
-                        android:layout_width="4dp"
-                        android:layout_height="wrap_content" />
-
-                    <com.google.android.material.button.MaterialSplitButton
-                        android:id="@+id/splitButton"
+                    <com.google.android.material.button.MaterialButton
+                        style="?attr/materialSplitButtonLeadingFilledStyle"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <com.google.android.material.button.MaterialButton
-                            style="?attr/materialSplitButtonLeadingFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:icon="@drawable/outline_content_copy_24"
-                            />
-                        <com.google.android.material.button.MaterialButton
-                            style="?attr/materialSplitButtonIconFilledStyle"
-                            android:id="@+id/expand_more_or_less_filled"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@string/copy_options"
-                            app:icon="@drawable/m3_split_button_chevron_avd"
-                            />
-
-                    </com.google.android.material.button.MaterialSplitButton>
-
-                </LinearLayout>
-
-                <FrameLayout
-                    android:id="@+id/bottomAppBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:alpha="0"
-                    android:visibility="gone">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_math_symbols"
-                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:clipToPadding="false"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="2dp"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        tools:listitem="@layout/item_math_symbol" />
+                        app:icon="@drawable/outline_content_copy_24" />
 
-                </FrameLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/expand_more_or_less_filled"
+                        style="?attr/materialSplitButtonIconFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/copy_options"
+                        app:icon="@drawable/m3_split_button_chevron_avd" />
+
+                </com.google.android.material.button.MaterialSplitButton>
 
             </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/bottomAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0"
+                android:visibility="gone">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_math_symbols"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_math_symbol" />
+
+            </FrameLayout>
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
