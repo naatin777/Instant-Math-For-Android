@@ -17,7 +17,11 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.widget.doAfterTextChanged
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.MaterialSharedAxis
@@ -30,6 +34,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: HomeViewModel by viewModel()
+    private var mathPreviewJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -269,7 +274,12 @@ class HomeFragment : Fragment() {
             displayMode = true
         }
         binding.editMessage.doAfterTextChanged { text ->
-            binding.mathView.latex = text?.toString().orEmpty()
+            val latex = text?.toString().orEmpty()
+            mathPreviewJob?.cancel()
+            mathPreviewJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(MATH_PREVIEW_DEBOUNCE_MS)
+                binding.mathView.latex = latex
+            }
         }
     }
 
@@ -296,11 +306,13 @@ class HomeFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        mathPreviewJob?.cancel()
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
         private const val MATH_PREVIEW_FONT_SIZE_SP = 24f
+        private const val MATH_PREVIEW_DEBOUNCE_MS = 100L
     }
 }
