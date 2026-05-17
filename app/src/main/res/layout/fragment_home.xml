@@ -98,15 +98,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/colorSurfaceContainer"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="center_vertical">
 
                 <io.ratex.RaTeXView
                     android:id="@+id/mathView"
@@ -115,16 +112,50 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="8dp" />
 
-                <EditText
-                    android:id="@+id/editMessage"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
-                    android:background="@drawable/edit_text_background"
-                    android:hint="@string/enter_the_formula"
-                    android:inputType="textMultiLine|textCapSentences"
-                    android:maxLines="6"
-                    android:padding="16dp" />
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:gravity="center_vertical">
+
+                    <EditText
+                        android:id="@+id/editMessage"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/edit_text_background"
+                        android:hint="@string/enter_the_formula"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:padding="16dp" />
+
+                    <Space
+                        android:layout_width="4dp"
+                        android:layout_height="wrap_content" />
+
+                    <com.google.android.material.button.MaterialSplitButton
+                        android:id="@+id/splitButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <Button
+                            style="?attr/materialSplitButtonLeadingFilledStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:icon="@drawable/outline_content_copy_24"
+                            />
+                        <Button
+                            style="?attr/materialSplitButtonIconFilledStyle"
+                            android:id="@+id/expand_more_or_less_filled"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:icon="@drawable/m3_split_button_chevron_avd"
+                            />
+
+                    </com.google.android.material.button.MaterialSplitButton>
+
+                </LinearLayout>
 
                 <FrameLayout
                     android:id="@+id/bottomAppBar"
