@@ -6,6 +6,9 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
@@ -264,10 +267,20 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun commitImeComposingText(editText: EditText) {
+        val editorInfo = EditorInfo().apply {
+            inputType = editText.inputType
+            imeOptions = editText.imeOptions
+        }
+        editText.onCreateInputConnection(editorInfo)?.finishComposingText()
+        editText.text?.let { BaseInputConnection.removeComposingSpans(it) }
+    }
+
     private fun setupMathSymbols() {
         val symbols = listOf("\\", "{", "}", "^", "_", "[", "]", "`", "~", "&", "%")
         val adapter = MathSymbolAdapter(symbols) { symbol ->
             val editText = binding.editMessage
+            commitImeComposingText(editText)
             val start = editText.selectionStart
             val end = editText.selectionEnd
             editText.text.replace(start, end, symbol)
